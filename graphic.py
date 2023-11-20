@@ -17,6 +17,9 @@ class THSS_detector:
     canvas_image = None
     i = 0
     camPorts = None
+    captureCanvas = None
+    startCaptureState = False
+    capturingWindow = None
     
     def prev_data():
         
@@ -39,9 +42,9 @@ class THSS_detector:
     
     def chooseCam():
         
-        
         CamPortLabel = tk.Label(THSS_detector.window, text='Select Camera Port', font=('Arial',15))
-        CamPortLabel.place(x=30, y=130)
+        CamPortLabel.place(x=30, y=20)
+        NextButton = tk.Button(THSS_detector.window, text="next", command= lambda:THSS_detector.startCapture)
         
         
         CamOption = tk.OptionMenu(THSS_detector.window, THSS_detector.camList_val, *THSS_detector.camPorts)
@@ -56,6 +59,7 @@ class THSS_detector:
                 
                 THSS_detector.canvas.config(width = THSS_detector.camResX, height = THSS_detector.camResY)
                 THSS_detector.displayCam()
+                NextButton.place(x=90, y= 30)
                 print('pass')
         
         
@@ -65,18 +69,38 @@ class THSS_detector:
         frame = cv2.cvtColor(camWork.camWork.flow_vid(camWork.camWork.camera), cv2.COLOR_BGR2RGB)
         img = Image.fromarray(frame)
         imgtk = ImageTk.PhotoImage(image=img)
-        THSS_detector.canvas.itemconfig(THSS_detector.canvas_image, image = imgtk)
-        THSS_detector.canvas.image = imgtk
+        if THSS_detector.startCaptureState:
+            THSS_detector.captureCanvas.itemconfig(THSS_detector.canvas_image, image = imgtk)
+            THSS_detector.captureCanvas.image = imgtk
+        else:
+            THSS_detector.canvas.itemconfig(THSS_detector.canvas_image, image = imgtk)
+            THSS_detector.canvas.image = imgtk
         print('done ')
         
+    
+    def startCapture():
         
+        THSS_detector.window.destroy()
+        
+        THSS_detector.capturingWindow = tk.Tk()
+        THSS_detector.capturingWindow.title("Claw For Humanity Ticket Checker")
+        THSS_detector.capturingWindow.geometry("1200x1200")
+        THSS_detector.capturingWindow.resizable(True, True)
+        
+        label_capturing = tk.Label(THSS_detector.capturingWindow, text="capturing...", font=('Arial', 15))
+        label_capturing.place(x=500, y= 20)
+        
+        THSS_detector.startCaptureState = True
+        THSS_detector.displayCam()
+        
+        THSS_detector.capturingWindow.mainloop()
         
     def Start():
         
         THSS_detector.prev_data()
         
         THSS_detector.window = tk.Tk()
-        THSS_detector.window.title("Project Claw For Humanity Port Selector")
+        THSS_detector.window.title("Claw For Humanity Ticket Check Configuration")
         THSS_detector.window.geometry("1200x1200")
         
         if THSS_detector.camList_val != 'None':
@@ -92,6 +116,7 @@ class THSS_detector:
         print('\nentering choosecam\n')
         THSS_detector.updateCamPorts()
         THSS_detector.chooseCam()
+        
         
         
         print('wow')
